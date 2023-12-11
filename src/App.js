@@ -6,12 +6,23 @@ import './App.css';
 function App() {
   const [movies,setMoives]=useState([])
   const [isLoading,setIsLoading]=useState(false)
+  const [error, setError]=useState(null)
 
    async function fetchMoivesHandler(){
     setIsLoading(false)
+    setError(null)
+    try{
+
+    
    const response= await fetch('https://swapi.dev/api/films/')
-       const data= await response.json();
-  
+       
+    if(!response.ok)
+    {
+      throw new Error('Something went wrong ....Retrying');
+      
+      
+    }
+    const data= await response.json();
       const transformedMoives=data.results.map(moiveData=>{
         return{
           id:moiveData.episode_id,
@@ -21,9 +32,26 @@ function App() {
         }
       })
       setMoives(transformedMoives)
-      setIsLoading(false)
-  
+    
+    } catch(error){
+        setError(error.message);
+        
+        
+    }
+    setIsLoading(false)
   }
+    let content=<p>Found no moives.</p>
+    if(movies.length>0)
+    {
+      content=<MoviesList movies={movies} />
+    }
+    if(error){
+     content=<p>{error}</p>;
+      
+    }
+    if(isLoading){
+      content=<p>Loading....</p>
+    }
     
 
   return (
@@ -32,9 +60,7 @@ function App() {
         <button onClick={fetchMoivesHandler}>Fetch Movies</button>
       </section>
       <section>
-        {!isLoading && movies.length>0 && <MoviesList movies={movies} />}
-        {!isLoading && movies.length===0 && <p>found no moives.</p>}
-        {isLoading && <p>Loading...</p>}
+       {content}
       </section>
     </React.Fragment>
   );
