@@ -15,7 +15,7 @@ function App() {
     try{
 
     
-   const response= await fetch('https://swapi.dev/api/films/')
+   const response= await fetch('https://react-http-18035-default-rtdb.firebaseio.com/moives.json')
        
     if(!response.ok)
     {
@@ -23,17 +23,20 @@ function App() {
       
       
     }
-    
-    const data= await response.json();
-      const transformedMoives=data.results.map(moiveData=>{
-        return{
-          id:moiveData.episode_id,
-          title:moiveData.title,
-          openingText:moiveData.opening_crawl,
-          releaseDate:moiveData.release_date
-        }
+    const data= await response.json()
+    console.log(data)
+    const loadedMoives=[];
+    for(const key in data)
+    {
+      loadedMoives.push({
+        id:key,
+        title:data[key].title,
+        openingText:data[key].openingText,
+        releaseDate:data[key].releaseDate
       })
-      setMoives(transformedMoives)
+    }
+    
+      setMoives(loadedMoives)
     
     } catch(error){
         setError(error.message);
@@ -45,8 +48,25 @@ function App() {
   useEffect(()=>{
     fetchMoivesHandler()
   },[fetchMoivesHandler])
-   function addMovieHandler(movie){
-      console.log(movie)
+
+    async function addMovieHandler(movie){
+     const response= await fetch('https://react-http-18035-default-rtdb.firebaseio.com/moives.json',{
+      method:'POST',
+      body:JSON.stringify(movie),
+      headers:{
+        'Content-Type': 'application/Json'
+      }
+    })
+ 
+   }
+   async function deleteMoiveshandler(movie){
+    const response= await fetch('https://react-http-18035-default-rtdb.firebaseio.com/moives.json',{
+      method:'DELETE',
+      body:JSON.stringify(movie),
+      headers:{
+        'Content-Type': 'application/Json'
+      }
+    })
    }
 
     let content=<p>Found no moives.</p>
@@ -70,6 +90,7 @@ function App() {
       </section>
       <section>
         <button onClick={fetchMoivesHandler}>Fetch Movies</button>
+        <button onClick={deleteMoiveshandler}>delete</button>
       </section>
       <section>
        {content}
