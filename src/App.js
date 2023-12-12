@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState,useCallback} from 'react';
 
 import MoviesList from './components/MoviesList';
 import './App.css';
@@ -7,8 +7,8 @@ function App() {
   const [movies,setMoives]=useState([])
   const [isLoading,setIsLoading]=useState(false)
   const [error, setError]=useState(null)
-
-   async function fetchMoivesHandler(){
+    
+   const fetchMoivesHandler=useCallback(async()=>{
     setIsLoading(false)
     setError(null)
     try{
@@ -22,6 +22,7 @@ function App() {
       
       
     }
+    
     const data= await response.json();
       const transformedMoives=data.results.map(moiveData=>{
         return{
@@ -39,7 +40,11 @@ function App() {
         
     }
     setIsLoading(false)
-  }
+  })
+  useEffect(()=>{
+    fetchMoivesHandler()
+  },[fetchMoivesHandler])
+
     let content=<p>Found no moives.</p>
     if(movies.length>0)
     {
